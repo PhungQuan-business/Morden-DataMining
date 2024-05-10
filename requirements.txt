@@ -1,0 +1,8 @@
+torch
+torchvision
+Pillow
+Flask
+inference
+opencv-python
+supervision
+ultralytics
