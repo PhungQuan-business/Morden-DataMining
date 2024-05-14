@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaf Disease Prediction</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 
 <body>
@@ -47,22 +48,23 @@
         });
 
         // Event listener for form submission
-        document.getElementById('upload-form').addEventListener('submit', function (e) {
+        $("#upload-form").submit(function (e) {
             e.preventDefault();
             var formData = new FormData(this);
-            fetch('/process_image', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.blob())
-                .then(blob => {
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        displayPredictedImage(reader.result);
-                    }
-                    reader.readAsDataURL(blob);
-                })
-                .catch(error => console.error('Error:', error));
+            var url = 'http://192.168.36.107:5000/process_image';
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    displayPredictedImage(response.image);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
         });
     </script>
 </body>

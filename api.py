@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 import cv2
 import numpy as np
+import pybase64
 from predict import process_image
 from ultralytics import YOLO
 import supervision as sv
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Initialize the YOLOv8 model
 MODEL_PATH = "best.pt"
@@ -30,10 +33,17 @@ def process_image_api():
 
     # Convert the processed image to bytes
     _, encoded_image = cv2.imencode('.jpg', processed_image)
+    cv2.imwrite('test.jpg', encoded_image)
     image_bytes = encoded_image.tobytes()
-    
-    # Return the processed image
-    return image_bytes, 200, {'Content-Type': 'image/jpeg'}
+
+    # Encode image bytes to base64
+    # image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+    base64_data = pybase64.b64encode(image_bytes).decode('utf-8')
+    f64_decode = f'data:image/png;base64,{base64_data}'  # Add the data URI heade
+    # with open('imagebase64.txt', 'w') as file:
+    #     file.write(image_base64)
+    # Return the processed image as base64 string
+    return jsonify({'image': f64_decode}), 200
 
 # Route to render the HTML template
 @app.route('/')
@@ -42,4 +52,4 @@ def index():
 
 if __name__ == '__main__':
     # Run the Flask app
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
