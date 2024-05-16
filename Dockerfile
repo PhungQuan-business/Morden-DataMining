@@ -65,7 +65,7 @@ COPY requirements.txt requirements.txt
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txtiterm
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -74,4 +74,4 @@ COPY . .
 EXPOSE 5000
 
 # Command to run the app
-CMD ["python", "api.py"]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]

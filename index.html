@@ -51,7 +51,8 @@
         $("#upload-form").submit(function (e) {
             e.preventDefault();
             var formData = new FormData(this);
-            var url = 'http://192.168.36.107:5000/process_image';
+            var url = 'http://192.168.88.120:5001/process_image';
+            // var url = 'http://172.17.0.2:5000/process_image';
             $.ajax({
                 type: "POST",
                 url: url,
