@@ -1,8 +1,16 @@
-torch
-torchvision
-Pillow
-Flask
-inference
-opencv-python
+# torch
+# torchvision
+# Pillow
+# Flask
+# inference
+# opencv-python
+# supervision
+# ultralytics
+# Flask-Cors
+
 supervision
+inference
 ultralytics
+opencv-python-headless
+Flask
+Flask-Cors
