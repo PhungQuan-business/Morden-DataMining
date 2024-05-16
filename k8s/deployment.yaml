@@ -18,7 +18,7 @@ spec:
       - name: leaf-disease-classification-container
         # image: docker.io/library/rs-image-v1
         #TODO đổi lại tên image
-        image: linhtinh819/leaf-disease-image:v1
+        image: docker.io/linhtinh819/leaf-diseas-image:centos
         imagePullPolicy: IfNotPresent # must specify
         # command: ["sleep", "infinity"] 
         # resources:

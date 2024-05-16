@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaf Disease Prediction</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <style>
+        img {
+            width: 400px;
+            /* Increased size */
+            margin: 10px;
+            /* Added margin */
+        }
+
+        #uploaded-images,
+        #predicted-images {
+            display: flex;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Leaf Disease Prediction</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="file-input" name="files" accept="image/*" multiple webkitdirectory>
+        <button type="submit" id="upload-button">Upload Image(s)</button>
+    </form>
+    <div id="image-container" style="display: none;">
+        <h2>Uploaded Images</h2>
+        <div id="uploaded-images"></div>
+    </div>
+    <div id="prediction-container" style="display: none;">
+        <h2>Predicted Images</h2>
+        <div id="predicted-images"></div>
+    </div>
+
+    <script>
+        // Function to display uploaded images
+        function displayUploadedImages(input) {
+            if (input.files) {
+                const uploadedImagesContainer = document.getElementById('uploaded-images');
+                uploadedImagesContainer.innerHTML = '';
+                Array.from(input.files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            const imgElement = document.createElement('img');
+                            imgElement.src = e.target.result;
+                            imgElement.alt = 'Uploaded Image';
+                            uploadedImagesContainer.appendChild(imgElement);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+                document.getElementById('image-container').style.display = 'block';
+            }
+        }
+
+        // Function to display predicted images
+        function displayPredictedImages(images) {
+            const predictedImagesContainer = document.getElementById('predicted-images');
+            predictedImagesContainer.innerHTML = '';
+            images.forEach(imageData => {
+                const imgElement = document.createElement('img');
+                imgElement.src = imageData;
+                imgElement.alt = 'Predicted Image';
+                predictedImagesContainer.appendChild(imgElement);
+            });
+            document.getElementById('prediction-container').style.display = 'block';
+        }
+
+        // Event listener for file input change
+        document.getElementById('file-input').addEventListener('change', function () {
+            displayUploadedImages(this);
+        });
+
+        // Event listener for form submission
+        $("#upload-form").submit(function (e) {
+            e.preventDefault();
+            var files = document.getElementById('file-input').files;
+            var url = 'http://192.168.49.2:31312/process_image';
+            var predictedImages = [];
+
+            // Function to upload each file one by one
+            function uploadFile(file, index) {
+                var formData = new FormData();
+                formData.append('file', file);
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        predictedImages.push(response.image); // assuming response.image is the image data
+                        // If there are more files to upload, call uploadFile for the next file
+                        if (index < files.length - 1) {
+                            uploadFile(files[index + 1], index + 1);
+                        } else {
+                            // All files have been processed, display the predicted images
+                            displayPredictedImages(predictedImages);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                        // If there are more files to upload, call uploadFile for the next file
+                        if (index < files.length - 1) {
+                            uploadFile(files[index + 1], index + 1);
+                        } else {
+                            // All files have been processed, display the predicted images
+                            displayPredictedImages(predictedImages);
+                        }
+                    }
+                });
+            }
+
+            // Start uploading the first file
+            if (files.length > 0) {
+                uploadFile(files[0], 0);
+            }
+        });
+    </script>
+</body>
+
+</html>

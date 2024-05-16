@@ -74,4 +74,6 @@ COPY . .
 EXPOSE 5000
 
 # Command to run the app
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+ENTRYPOINT ["python"]
+# CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+CMD ["app.py"]
