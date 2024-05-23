@@ -7,17 +7,83 @@
     <title>Leaf Disease Prediction</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <style>
-        img {
-            width: 200px;
-            /* Increased size */
-            margin: 10px;
-            /* Added margin */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #343a40;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #image-container,
+        #prediction-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            color: #343a40;
         }
 
         #uploaded-images,
         #predicted-images {
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        img {
+            width: 280px;
+            margin: 10px;
         }
     </style>
 </head>
@@ -36,20 +102,15 @@
         <h2>Predicted Images</h2>
         <div id="predicted-images"></div>
     </div>
-    <div id="time-container" style="display: none;">
-        <h2>Total Processing Time</h2>
-        <p id="processing-time"></p>
-    </div>
 
     <script>
-        // Function to display uploaded images
         function displayUploadedImages(input) {
             if (input.files) {
                 const uploadedImagesContainer = document.getElementById('uploaded-images');
                 uploadedImagesContainer.innerHTML = '';
                 Array.from(input.files).forEach(file => {
                     if (file.type.startsWith('image/')) {
-                        var reader = new FileReader();
+                        const reader = new FileReader();
                         reader.onload = function (e) {
                             const imgElement = document.createElement('img');
                             imgElement.src = e.target.result;
@@ -63,7 +124,6 @@
             }
         }
 
-        // Function to display predicted images
         function displayPredictedImages(images) {
             const predictedImagesContainer = document.getElementById('predicted-images');
             predictedImagesContainer.innerHTML = '';
@@ -76,31 +136,18 @@
             document.getElementById('prediction-container').style.display = 'block';
         }
 
-        // Function to display total processing time
-        function displayProcessingTime(startTime) {
-            const endTime = new Date().getTime();
-            const timeDiff = (endTime - startTime) / 1000; // Convert to seconds
-            document.getElementById('processing-time').textContent = `Total processing time: ${timeDiff.toFixed(2)} seconds`;
-            document.getElementById('time-container').style.display = 'block';
-        }
-
-        // Event listener for file input change
         document.getElementById('file-input').addEventListener('change', function () {
             displayUploadedImages(this);
         });
 
-        // Event listener for form submission
         $("#upload-form").submit(function (e) {
             e.preventDefault();
-            const startTime = new Date().getTime(); // Start time measurement
-            var files = document.getElementById('file-input').files;
-            // var url = 'http://192.168.49.2:31312/process_image';
-            var url = 'https://13aa-222-252-51-118.ngrok-free.app/process_image';
-            var predictedImages = [];
+            const files = document.getElementById('file-input').files;
+            const url = 'http://127.0.0.1:5000/process_image';
+            const predictedImages = [];
 
-            // Function to upload each file one by one
             function uploadFile(file, index) {
-                var formData = new FormData();
+                const formData = new FormData();
                 formData.append('file', file);
 
                 $.ajax({
@@ -110,33 +157,24 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
-                        predictedImages.push(response.image); // assuming response.image is the image data
-                        // If there are more files to upload, call uploadFile for the next file
+                        predictedImages.push(response.image);
                         if (index < files.length - 1) {
                             uploadFile(files[index + 1], index + 1);
                         } else {
-                            // All files have been processed, display the predicted images
                             displayPredictedImages(predictedImages);
-                            // Display total processing time
-                            displayProcessingTime(startTime);
                         }
                     },
                     error: function (xhr, status, error) {
                         console.error('Error:', error);
-                        // If there are more files to upload, call uploadFile for the next file
                         if (index < files.length - 1) {
                             uploadFile(files[index + 1], index + 1);
                         } else {
-                            // All files have been processed, display the predicted images
                             displayPredictedImages(predictedImages);
-                            // Display total processing time
-                            displayProcessingTime(startTime);
                         }
                     }
                 });
             }
 
-            // Start uploading the first file
             if (files.length > 0) {
                 uploadFile(files[0], 0);
             }
